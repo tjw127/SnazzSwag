@@ -8,6 +8,8 @@ public class Credentials {
 
     public static final String AWS_VERSION = "2013-08-01";
 
+    public static final String north = "";
+
     public static final String AWS_ENDPOINT = "webservices.amazon.com";
 
     public static final String AWS_END_TAG = "/onca/xml";
