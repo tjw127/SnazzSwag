@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -11,10 +14,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import co.uglytruth.snazzswag.walmart.Walmart;
+import co.uglytruth.snazzswag.walmart.adapter.WalmartAdapter;
 import co.uglytruth.snazzswag.walmart.async_task.OkHttpAsyncTaskResponse;
+import co.uglytruth.snazzswag.walmart.products.WalmartProducts;
+import co.uglytruth.snazzswag.walmart.response.WalmartProductsResponse;
 import co.uglytruth.snazzswag.walmart.rest_api.WalmartRestAPI;
 
 public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskResponse {
+
+    private RecyclerView walmartRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        create_views();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -33,11 +42,21 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
         });
     }
 
+    private void create_views(){
+        this.walmartRecyclerView = (RecyclerView)findViewById(R.id.walmart_list);
+        this.walmartRecyclerView.setHasFixedSize(false);
+        this.walmartRecyclerView.setLayoutManager(new GridLayoutManager(this,2));
+
+
+
+    }
+
     public void walmart_search(String q){
 
         try {
 
             Walmart.RequestBuilder requestBuilder = new Walmart.RequestBuilder();
+
             requestBuilder.response(this);
 
             Walmart.EndpointBuilder endpointBuilder = new Walmart.EndpointBuilder();
@@ -48,18 +67,12 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
 
             WalmartRestAPI.Search search = new WalmartRestAPI.Search(endpointBuilder, argumentsBuilder, requestBuilder);
 
-            String result = (String)search.getResults();
+            search.getResults();
 
         }catch (Exception e){
 
             e.printStackTrace();
         }
-
-//        String result = (String)search.getResults();
-
-
-
-//        Log.d("WalmartSearch 1 ", result);
 
     }
 
@@ -94,6 +107,11 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
     @Override
     public void onResponse(Object results) {
 
-        Log.d("WalmartResponse", " " + String.valueOf(results));
+        WalmartProducts products = WalmartProductsResponse.getResults(String.valueOf(results));
+
+        WalmartAdapter walmartAdapter = new WalmartAdapter(products.items, this.getApplicationContext());
+
+        this.walmartRecyclerView.setAdapter(walmartAdapter);
+        Log.d("WalmartResponse", " " + walmartAdapter);
     }
 }

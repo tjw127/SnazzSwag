@@ -52,7 +52,7 @@
 
 
 
-        <co.uglytruth.lindy.walmart.button.ShoppingBuyButton
+        <co.uglytruth.snazzswag.walmart.views.ShoppingBuyButton
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
@@ -61,7 +61,7 @@
             android:adjustViewBounds="true"
             android:cropToPadding="false"
             android:padding="-5dp"
-            ></co.uglytruth.lindy.walmart.button.ShoppingBuyButton>
+            ></co.uglytruth.snazzswag.walmart.views.ShoppingBuyButton>
         <!-- <ImageButton
              android:id="@+id/walmartImageButton"
              android:layout_width="match_parent"
