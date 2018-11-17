@@ -1,6 +1,8 @@
 package co.uglytruth.snazzswag.walmart.adapter;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -36,6 +38,8 @@ public class WalmartAdapter extends RecyclerView.Adapter<WalmartViewHolder>{
 
     private int id;
 
+    private String url;
+
     WalmartProducts.Items[] items;
 
     public WalmartAdapter(WalmartProducts.Items[] aItems, Context aContext){
@@ -52,17 +56,25 @@ public class WalmartAdapter extends RecyclerView.Adapter<WalmartViewHolder>{
         @Override
         public WalmartViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.walmart_view, parent, false);
+            View walmart_view_holder = LayoutInflater.from(parent.getContext()).inflate(R.layout.walmart_view, parent, false);
+
+            walmart_view_holder = this.setWalmartViewHolderMeasurements(parent, walmart_view_holder);
+
+
+            return new WalmartViewHolder(walmart_view_holder);
+        }
+
+        private View setWalmartViewHolderMeasurements(ViewGroup parent, View walmart_holder_view){
 
             int height = parent.getMeasuredHeight() / 4;
 
             int width = parent.getMeasuredWidth() / 4;
 
-            itemView.setMinimumHeight(height);
+            walmart_holder_view.setMinimumHeight(height);
 
-            itemView.setMinimumWidth(width);
+            walmart_holder_view.setMinimumWidth(width);
 
-            return new WalmartViewHolder(itemView);
+            return walmart_holder_view;
         }
 
         @Override
@@ -78,22 +90,47 @@ public class WalmartAdapter extends RecyclerView.Adapter<WalmartViewHolder>{
 //            WalmartItem walmartItem = new WalmartItem(item.itemId, WalmartItemIdType.WALMART_ID);
 
 
-            Integer qualityInteger = null;
+            Integer quantity = null;
 
             //items.stock.equals("Available")
 
-            if (item.availableOnline)
-            {
-                qualityInteger = 1;
-            }else {
-
-                qualityInteger = 0;
-            }
+            quantity = this.isProductAvailable(quantity, item.availableOnline);
 
             //holder.walmartBuyNowButton.se
 //            holder.walmartBuyNowButton.addItem(walmartItem, qualityInteger.intValue());
 
-            if (qualityInteger == 0) {
+            try{
+                this.buy_button_method(holder, position);
+
+            }catch (Exception e){
+
+                Log.d("WalmartBuyBMethod", " " + e.getLocalizedMessage());
+            }
+
+            try {
+
+                this.setPriceInTextView(holder, item.salePrice, quantity);
+
+            }catch (Exception e){
+
+                Log.d("Walmart_Adapter_Price", " " + e.getLocalizedMessage());
+            }
+
+            try {
+
+                Picasso.get().load(item.largeImage).into(holder.walmartImageView);
+
+            }catch (NullPointerException e){
+
+                Log.d("Walmart_Adapter_Image", " " + e.getLocalizedMessage());
+            }
+
+
+        }
+
+        private void setPriceInTextView(WalmartViewHolder holder, String price_string, Integer quantity){
+
+            if (quantity == 0) {
 
                 String zero_price = "$" + "0.00";
 
@@ -103,18 +140,53 @@ public class WalmartAdapter extends RecyclerView.Adapter<WalmartViewHolder>{
 
             }else {
 
-                String s;
-                Float itemFloat = Float.valueOf(item.salePrice);
+
+                Float itemFloat = Float.valueOf(price_string);
 
                 String price = "$" + String.format("%.2f", itemFloat.floatValue());
 
                 holder.walmartPriceTextView.setText(price);
             }
 
-            Log.d("WalmartImage", " " + item.largeImage);
+        }
 
-            Picasso.get().load(item.largeImage).into(holder.walmartImageView);
+        private Integer isProductAvailable(Integer quantity, boolean available){
 
+
+            if (available)
+            {
+                quantity = 1;
+            }else {
+
+                quantity = 0;
+            }
+
+            return quantity;
+        }
+
+        private void buy_button_method(WalmartViewHolder holder, int position){
+
+
+            final int product_position = position;
+
+            holder.shoppingBuyButton.getShoppingBuyButton().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(items[product_position].productTrackingUrl));
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    i.setPackage("com.android.chrome");
+                    try {
+
+                        context.startActivity(i);
+
+                    } catch (ActivityNotFoundException e) {
+                        // Chrome is probably not installed
+                        // Try with the default browser
+                        e.printStackTrace();
+                    }
+                }
+            });
         }
 
         @Override

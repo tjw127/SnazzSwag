@@ -36,4 +36,8 @@ public class ShoppingBuyButton extends LinearLayout {
     public void setShoppingBuyButton(Button shoppingBuyButton) {
         this.shoppingBuyButton = shoppingBuyButton;
     }
+
+    public Button getShoppingBuyButton() {
+        return shoppingBuyButton;
+    }
 }

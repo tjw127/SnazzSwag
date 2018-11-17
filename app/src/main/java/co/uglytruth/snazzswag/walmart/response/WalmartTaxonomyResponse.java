@@ -24,13 +24,15 @@ public class WalmartTaxonomyResponse {
 
         JSONArray jsonObject = new JSONObject(result).getJSONArray("categories");
 
-        WalmartTaxonomy.Categories[] categories = gson.fromJson(jsonObject.toString(), WalmartTaxonomy.Categories[].class);
+        return (WalmartTaxonomy.Categories[])gson.fromJson(jsonObject.toString(), WalmartTaxonomy.Categories[].class);
 
-        for (WalmartTaxonomy.Categories categories1 : categories)
+        /*
+         for (WalmartTaxonomy.Categories categories1 : categories)
         {
             Log.v("Categories ", " " + categories1.name + " \n" + " " + categories1.id);
         }
 
-        return categories;
+         */
+
     }
 }

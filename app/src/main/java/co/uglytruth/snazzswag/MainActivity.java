@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
     }
 
     private void create_views(){
+
         this.walmartRecyclerView = (RecyclerView)findViewById(R.id.walmart_list);
         this.walmartRecyclerView.setHasFixedSize(false);
         this.walmartRecyclerView.setLayoutManager(new GridLayoutManager(this,2));
@@ -79,7 +80,11 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
     @Override
     protected void onStart() {
         super.onStart();
-        this.walmart_search("women");
+        if (this.walmartRecyclerView.getAdapter() == null) {
+            
+            this.walmart_search("women");
+
+        }
     }
 
     @Override
@@ -107,11 +112,19 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
     @Override
     public void onResponse(Object results) {
 
-        WalmartProducts products = WalmartProductsResponse.getResults(String.valueOf(results));
+       if (this.walmartRecyclerView.getAdapter() == null){
 
-        WalmartAdapter walmartAdapter = new WalmartAdapter(products.items, this.getApplicationContext());
+           WalmartProducts products = WalmartProductsResponse.getResults(String.valueOf(results));
 
-        this.walmartRecyclerView.setAdapter(walmartAdapter);
-        Log.d("WalmartResponse", " " + walmartAdapter);
+           WalmartAdapter walmartAdapter = new WalmartAdapter(products.items, this.getApplicationContext());
+
+           this.walmartRecyclerView.setAdapter(walmartAdapter);
+
+           Log.d("WalmartResponse", " " + walmartAdapter);
+       }
+
+
+
+
     }
 }
