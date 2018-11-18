@@ -36,8 +36,17 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Refreshing the products.", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                try {
+
+                    walmart_search("women");
+
+                }catch (Exception e){
+
+                    Log.d("Walmart_Main_Fab", " " + e.getLocalizedMessage());
+
+                }
             }
         });
     }
@@ -81,8 +90,16 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
     protected void onStart() {
         super.onStart();
         if (this.walmartRecyclerView.getAdapter() == null) {
-            
-            this.walmart_search("women");
+
+            try {
+
+                this.walmart_search("women");
+
+            }catch (Exception e){
+
+                Log.d("Walmart_Main_Search", " " + e.getLocalizedMessage());
+
+            }
 
         }
     }
