@@ -1,5 +1,9 @@
 package co.uglytruth.snazzswag;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -13,6 +17,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import co.uglytruth.snazzswag.connectivity.Connectivity;
 import co.uglytruth.snazzswag.walmart.Walmart;
 import co.uglytruth.snazzswag.walmart.adapter.WalmartAdapter;
 import co.uglytruth.snazzswag.walmart.async_task.OkHttpAsyncTaskResponse;
@@ -23,6 +28,7 @@ import co.uglytruth.snazzswag.walmart.rest_api.WalmartRestAPI;
 public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskResponse {
 
     private RecyclerView walmartRecyclerView;
+    private Connectivity connectivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,21 +44,29 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
             public void onClick(View view) {
                 Snackbar.make(view, "Refreshing the products.", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                try {
 
-                    walmart_search("women");
+
+                try {
+                    if (getConnectivityStatus()) {
+
+                        walmart_search("women");
+                        connectivity.setVisibility(View.INVISIBLE);
+                    } else {
+                        connectivity.setText("No Internet Connection");
+                        connectivity.setVisibility(View.VISIBLE);
+                    }
 
                 }catch (Exception e){
-
                     Log.d("Walmart_Main_Fab", " " + e.getLocalizedMessage());
-
                 }
+
             }
         });
     }
 
     private void create_views(){
 
+        this.connectivity = (Connectivity)findViewById(R.id.internet_connectivity);
         this.walmartRecyclerView = (RecyclerView)findViewById(R.id.walmart_list);
         this.walmartRecyclerView.setHasFixedSize(false);
         this.walmartRecyclerView.setLayoutManager(new GridLayoutManager(this,2));
@@ -61,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
 
     }
 
-    public void walmart_search(String q){
+    private void walmart_search(String q){
 
         try {
 
@@ -86,21 +100,53 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
 
     }
 
+    private boolean getConnectivityStatus() {
+
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo networkInfo = null;
+
+        networkInfo = connectivityManager.getActiveNetworkInfo();
+
+        if (networkInfo == null){
+
+            return false;
+
+        }else {
+            return networkInfo.isConnected();
+        }
+
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
+
         if (this.walmartRecyclerView.getAdapter() == null) {
 
-            try {
+
+            if (this.getConnectivityStatus()){
 
                 this.walmart_search("women");
+                this.connectivity.setVisibility(View.INVISIBLE);
 
-            }catch (Exception e){
+            }else {
 
-                Log.d("Walmart_Main_Search", " " + e.getLocalizedMessage());
-
+                this.connectivity.setText("No Internet Connection");
+                this.connectivity.setVisibility(View.VISIBLE);
             }
 
+        }else {
+
+            if (this.getConnectivityStatus()){
+
+                this.connectivity.setVisibility(View.INVISIBLE);
+
+            }else {
+
+                this.connectivity.setText("No Internet Connection");
+                this.connectivity.setVisibility(View.VISIBLE);
+            }
         }
     }
 
