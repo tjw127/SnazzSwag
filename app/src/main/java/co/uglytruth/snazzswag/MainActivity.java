@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ProgressBar;
 
 import co.uglytruth.snazzswag.connectivity.Connectivity;
 import co.uglytruth.snazzswag.walmart.Walmart;
@@ -29,49 +30,27 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
 
     private RecyclerView walmartRecyclerView;
     private Connectivity connectivity;
-
+    private ProgressBar progressBar;
+    private FloatingActionButton fab;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         create_views();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Refreshing the products.", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
-
-                try {
-                    if (getConnectivityStatus()) {
-
-                        walmart_search("women");
-                        connectivity.setVisibility(View.INVISIBLE);
-                    } else {
-                        connectivity.setText("No Internet Connection");
-                        connectivity.setVisibility(View.VISIBLE);
-                    }
-
-                }catch (Exception e){
-                    Log.d("Walmart_Main_Fab", " " + e.getLocalizedMessage());
-                }
-
-            }
-        });
     }
 
     private void create_views(){
 
         this.connectivity = (Connectivity)findViewById(R.id.internet_connectivity);
+        this.fab = (FloatingActionButton) findViewById(R.id.fab);
         this.walmartRecyclerView = (RecyclerView)findViewById(R.id.walmart_list);
         this.walmartRecyclerView.setHasFixedSize(false);
         this.walmartRecyclerView.setLayoutManager(new GridLayoutManager(this,2));
-
-
+        this.progressBar = (ProgressBar)findViewById(R.id.main_progress_bar);
 
     }
 
@@ -118,17 +97,45 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+    private void setFabOnClickMethod(){
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Refreshing the products.", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+
+                try {
+                    progressBar.setVisibility(View.VISIBLE);
+                    if (getConnectivityStatus()) {
+
+                        walmart_search("women");
+                        connectivity.setVisibility(View.INVISIBLE);
+
+                    } else {
+                        connectivity.setText("No Internet Connection");
+                        connectivity.setVisibility(View.VISIBLE);
+                        progressBar.setVisibility(View.INVISIBLE);
+                    }
+
+                }catch (Exception e){
+                    Log.d("Walmart_Main_Fab", " " + e.getLocalizedMessage());
+                }
+
+            }
+        });
+    }
+
+    private void setWalmartRecyclerView(){
 
         if (this.walmartRecyclerView.getAdapter() == null) {
 
-
+            this.progressBar.setVisibility(View.VISIBLE);
             if (this.getConnectivityStatus()){
 
                 this.walmart_search("women");
                 this.connectivity.setVisibility(View.INVISIBLE);
+
 
             }else {
 
@@ -148,6 +155,14 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
                 this.connectivity.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        this.setFabOnClickMethod();
+        this.setWalmartRecyclerView();
+
     }
 
     @Override
@@ -172,22 +187,25 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
         return super.onOptionsItemSelected(item);
     }
 
+    private void onResponseWalmartRecyclerView(Object results){
+
+        if (this.walmartRecyclerView.getAdapter() == null){
+
+            WalmartProducts products = WalmartProductsResponse.getResults(String.valueOf(results));
+
+            WalmartAdapter walmartAdapter = new WalmartAdapter(products.items, this.getApplicationContext());
+
+            this.walmartRecyclerView.setAdapter(walmartAdapter);
+
+            this.progressBar.setVisibility(View.INVISIBLE);
+
+            Log.d("WalmartResponse", " " + walmartAdapter);
+        }
+    }
+
     @Override
     public void onResponse(Object results) {
 
-       if (this.walmartRecyclerView.getAdapter() == null){
-
-           WalmartProducts products = WalmartProductsResponse.getResults(String.valueOf(results));
-
-           WalmartAdapter walmartAdapter = new WalmartAdapter(products.items, this.getApplicationContext());
-
-           this.walmartRecyclerView.setAdapter(walmartAdapter);
-
-           Log.d("WalmartResponse", " " + walmartAdapter);
-       }
-
-
-
-
+        this.onResponseWalmartRecyclerView(results);
     }
 }
