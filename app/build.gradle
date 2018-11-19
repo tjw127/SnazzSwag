@@ -21,6 +21,7 @@ android {
 repositories {
     mavenCentral()
     google()
+    maven { url "https://s3.amazonaws.com/moat-sdk-builds" }
 }
 
 dependencies {
@@ -34,6 +35,11 @@ dependencies {
         transitive = false
 
     }
+
+    implementation('com.mopub:mopub-sdk:5.4.0@aar') {
+        transitive = true
+    }
+
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
     implementation 'com.google.code.gson:gson:2.8.5'

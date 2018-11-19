@@ -8,7 +8,7 @@ public class Credentials {
 
     public static final String AWS_VERSION = "2013-08-01";
 
-    public static final String north = "";
+    public static final String mopub_fullscreen_ad = "daa397dd314443aa9166f100bc28d630";
 
     public static final String AWS_ENDPOINT = "webservices.amazon.com";
 

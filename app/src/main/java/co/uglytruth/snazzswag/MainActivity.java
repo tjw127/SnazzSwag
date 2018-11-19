@@ -18,7 +18,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 
+import com.mopub.common.MoPub;
+import com.mopub.mobileads.MoPubErrorCode;
+import com.mopub.mobileads.MoPubInterstitial;
+
 import co.uglytruth.snazzswag.connectivity.Connectivity;
+import co.uglytruth.snazzswag.credentials.Credentials;
 import co.uglytruth.snazzswag.walmart.Walmart;
 import co.uglytruth.snazzswag.walmart.adapter.WalmartAdapter;
 import co.uglytruth.snazzswag.walmart.async_task.OkHttpAsyncTaskResponse;
@@ -26,20 +31,22 @@ import co.uglytruth.snazzswag.walmart.products.WalmartProducts;
 import co.uglytruth.snazzswag.walmart.response.WalmartProductsResponse;
 import co.uglytruth.snazzswag.walmart.rest_api.WalmartRestAPI;
 
-public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskResponse {
+public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskResponse, MoPubInterstitial.InterstitialAdListener {
 
     private RecyclerView walmartRecyclerView;
     private Connectivity connectivity;
     private ProgressBar progressBar;
     private FloatingActionButton fab;
+    private MoPubInterstitial mInterstitial;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MoPub.onCreate(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        create_views();
+        this.setAds();
+        this.create_views();
 
     }
 
@@ -52,6 +59,17 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
         this.walmartRecyclerView.setLayoutManager(new GridLayoutManager(this,2));
         this.progressBar = (ProgressBar)findViewById(R.id.main_progress_bar);
 
+    }
+
+    private void setAds(){
+        this.mInterstitial = new MoPubInterstitial(this, Credentials.mopub_fullscreen_ad);
+        this.mInterstitial.setInterstitialAdListener(this);
+    }
+
+    private void loadAds(){
+        if (this.mInterstitial.isReady()){
+            this.mInterstitial.load();
+        }
     }
 
     private void walmart_search(String q){
@@ -126,6 +144,20 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
         });
     }
 
+    private void check_internet_status(){
+
+        if (this.getConnectivityStatus()){
+
+            this.connectivity.setVisibility(View.INVISIBLE);
+
+        }else {
+
+            this.connectivity.setText("No Internet Connection");
+            this.connectivity.setVisibility(View.VISIBLE);
+        }
+
+    }
+
     private void setWalmartRecyclerView(){
 
         if (this.walmartRecyclerView.getAdapter() == null) {
@@ -145,23 +177,62 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
 
         }else {
 
-            if (this.getConnectivityStatus()){
-
-                this.connectivity.setVisibility(View.INVISIBLE);
-
-            }else {
-
-                this.connectivity.setText("No Internet Connection");
-                this.connectivity.setVisibility(View.VISIBLE);
-            }
+            this.check_internet_status();
         }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
         this.setFabOnClickMethod();
+        try {
+
+            this.loadAds();
+
+        }catch (Exception e){
+
+            Log.v("MoPubMainActivity", " On Start " + e.getLocalizedMessage());
+        }
+
         this.setWalmartRecyclerView();
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        this.check_internet_status();
+
+        try {
+
+            this.loadAds();
+
+        }catch (Exception e){
+
+            Log.v("MoPubMainActivity", " OnResume " + e.getLocalizedMessage());
+        }
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MoPub.onPause(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        MoPub.onStop(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MoPub.onDestroy(this);
 
     }
 
@@ -207,5 +278,30 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
     public void onResponse(Object results) {
 
         this.onResponseWalmartRecyclerView(results);
+    }
+
+    @Override
+    public void onInterstitialLoaded(MoPubInterstitial interstitial) {
+
+    }
+
+    @Override
+    public void onInterstitialFailed(MoPubInterstitial interstitial, MoPubErrorCode errorCode) {
+
+    }
+
+    @Override
+    public void onInterstitialShown(MoPubInterstitial interstitial) {
+
+    }
+
+    @Override
+    public void onInterstitialClicked(MoPubInterstitial interstitial) {
+
+    }
+
+    @Override
+    public void onInterstitialDismissed(MoPubInterstitial interstitial) {
+
     }
 }
