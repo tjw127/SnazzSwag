@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.widget.ProgressBar;
 
 import com.mopub.common.MoPub;
+import com.mopub.common.SdkConfiguration;
 import com.mopub.mobileads.MoPubErrorCode;
 import com.mopub.mobileads.MoPubInterstitial;
 
@@ -41,11 +42,19 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MoPub.onCreate(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        this.setAds();
+
+        try {
+
+            this.setAds();
+
+        }catch (Exception e){
+
+            e.printStackTrace();
+        }
+
         this.create_views();
 
     }
@@ -124,11 +133,12 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
                         .setAction("Action", null).show();
 
                 try {
-                    progressBar.setVisibility(View.VISIBLE);
-                    if (getConnectivityStatus()) {
 
+                    if (getConnectivityStatus()) {
+                        progressBar.setVisibility(View.VISIBLE);
                         walmart_search("women");
                         connectivity.setVisibility(View.INVISIBLE);
+
 
                     } else {
                         connectivity.setText("No Internet Connection");
@@ -271,6 +281,10 @@ public class MainActivity extends AppCompatActivity implements OkHttpAsyncTaskRe
             this.progressBar.setVisibility(View.INVISIBLE);
 
             Log.d("WalmartResponse", " " + walmartAdapter);
+        }else {
+
+            this.progressBar.setVisibility(View.INVISIBLE);
+
         }
     }
 
