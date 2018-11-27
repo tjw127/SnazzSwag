@@ -2,14 +2,12 @@ package co.uglytruth.snazzswag;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.net.Network;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -19,12 +17,10 @@ import android.view.MenuItem;
 import android.widget.ProgressBar;
 
 import com.mopub.common.MoPub;
-import com.mopub.common.SdkConfiguration;
 import com.mopub.mobileads.MoPubErrorCode;
 import com.mopub.mobileads.MoPubInterstitial;
 
 import co.uglytruth.snazzswag.connectivity.Connectivity;
-import co.uglytruth.snazzswag.credentials.Credentials;
 import co.uglytruth.snazzswag.walmart.Walmart;
 import co.uglytruth.snazzswag.walmart.adapter.WalmartAdapter;
 import co.uglytruth.snazzswag.walmart.async_task.OkHttpAsyncTaskResponse;

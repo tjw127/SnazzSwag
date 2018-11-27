@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import co.uglytruth.snazzswag.adstract_classes.WalmartRestApiTemplate;
-import co.uglytruth.snazzswag.credentials.Credentials;
 import co.uglytruth.snazzswag.walmart.Walmart;
 
 public class WalmartRestAPI {
